@@ -1,7 +1,7 @@
 import axios from 'axios';
 export { fetchPictures };
 
-options = {
+const options = {
   key: '29584505-fef9e62872125eda21502d6ec',
   url: 'https://pixabay.com/api/',
   image_type: 'photo',
