@@ -1,26 +1,48 @@
 import { fetchPictures } from './js/fetchPictures';
 import { createMarkupForGallery } from './js/markup-gallery';
+import { addPicToGallery } from './js/markup-gallery';
+import Notiflix from 'notiflix';
+
+let page = 1;
+let pages = 0;
 
 const submitBtn = document.querySelector('form');
+const inputSearchQuery = document.querySelector('input');
 submitBtn.addEventListener('submit', handleSubmit);
 
 function handleSubmit(e) {
   e.preventDefault();
 
+  loadMoreBtn.style.opacity = '0';
+  loadMoreBtn.style.pointerEvents = 'none';
+
   const submitValue = e.currentTarget.searchQuery.value;
-  console.log(submitValue);
   if (submitValue === '') {
     alertNoEmptySearch();
+    loadMoreBtn.style.opacity = '0';
+    loadMoreBtn.style.pointerEvents = 'none';
     return;
-  } else doMagic(submitValue);
+  } else {
+    doMagic(submitValue);
+
+    loadMoreBtn.style.opacity = '1';
+    loadMoreBtn.style.pointerEvents = 'auto';
+  }
 }
 
 async function doMagic(submitValue) {
-  const respons = await fetchPictures(submitValue);
-  
+  page = 1;
+  const respons = await fetchPictures(submitValue, page);
 
-  createMarkupForGallery(respons.data.hits);
+  if (respons.data.totalHits === 0) {
+    alertNoImagesFound();
+    loadMoreBtn.style.opacity = '0';
+    loadMoreBtn.style.pointerEvents = 'none';
+    return;
+  } else createMarkupForGallery(respons.data.hits);
   alertImagesFound(respons.data);
+
+  pages = respons.data.totalHits / 40;
 }
 
 function alertImagesFound(data) {
@@ -34,13 +56,37 @@ function alertNoEmptySearch() {
 }
 
 function alertNoImagesFound() {
-  Notiflix.Notify.failure(
+  Notiflix.Notify.warning(
     'Sorry, there are no images matching your search query. Please try again.'
   );
 }
 
 function alertEndOfSearch() {
-  Notiflix.Notify.failure(
+  Notiflix.Notify.warning(
     'We are sorry, but you have reached the end of search results.'
   );
+}
+
+const loadMoreBtn = document.querySelector('.load-more');
+
+loadMoreBtn.addEventListener('click', addEltoGallery);
+
+loadMoreBtn.style.opacity = '0';
+loadMoreBtn.style.pointerEvents = 'none';
+
+async function addEltoGallery(submitValue) {
+  page += 1;
+  
+
+  if (Math.ceil(pages) >= page) {
+    const respons = await fetchPictures(inputSearchQuery.value, page);
+    addPicToGallery(respons.data.hits);
+
+    loadMoreBtn.style.opacity = '1';
+    loadMoreBtn.style.pointerEvents = 'auto';
+  } else {
+    alertEndOfSearch();
+    loadMoreBtn.style.opacity = '0';
+    loadMoreBtn.style.pointerEvents = 'none';
+  }
 }
