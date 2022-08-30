@@ -1,0 +1,14 @@
+body {
+  margin-top: 50px;
+}
+
+header {
+  background-color: #00f;
+  padding: 10px;
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
