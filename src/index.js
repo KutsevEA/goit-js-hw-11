@@ -32,17 +32,21 @@ function handleSubmit(e) {
 
 async function doMagic(submitValue) {
   page = 1;
-  const respons = await fetchPictures(submitValue, page);
+  try {
+    const respons = await fetchPictures(submitValue, page);
 
-  if (respons.data.totalHits === 0) {
-    alertNoImagesFound();
-    loadMoreBtn.style.opacity = '0';
-    loadMoreBtn.style.pointerEvents = 'none';
-    return;
-  } else createMarkupForGallery(respons.data.hits);
-  alertImagesFound(respons.data);
+    if (respons.data.totalHits === 0) {
+      alertNoImagesFound();
+      loadMoreBtn.style.opacity = '0';
+      loadMoreBtn.style.pointerEvents = 'none';
+      return;
+    } else createMarkupForGallery(respons.data.hits);
+    alertImagesFound(respons.data);
 
-  pages = respons.data.totalHits / 40;
+    pages = respons.data.totalHits / 40;
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 function alertImagesFound(data) {
@@ -76,17 +80,20 @@ loadMoreBtn.style.pointerEvents = 'none';
 
 async function addEltoGallery(submitValue) {
   page += 1;
-  
+  try {
+    if (Math.ceil(pages) >= page) {
+      const respons = await fetchPictures(inputSearchQuery.value, page);
+      addPicToGallery(respons.data.hits);
 
-  if (Math.ceil(pages) >= page) {
-    const respons = await fetchPictures(inputSearchQuery.value, page);
-    addPicToGallery(respons.data.hits);
-
-    loadMoreBtn.style.opacity = '1';
-    loadMoreBtn.style.pointerEvents = 'auto';
-  } else {
-    alertEndOfSearch();
-    loadMoreBtn.style.opacity = '0';
-    loadMoreBtn.style.pointerEvents = 'none';
+      loadMoreBtn.style.opacity = '1';
+      loadMoreBtn.style.pointerEvents = 'auto';
+    } else {
+      alertEndOfSearch();
+      loadMoreBtn.style.opacity = '0';
+      loadMoreBtn.style.pointerEvents = 'none';
+    }
+  } catch (error) {
+    console.log(error.message);
   }
+  
 }
