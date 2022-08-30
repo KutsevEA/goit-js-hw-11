@@ -95,5 +95,4 @@ async function addEltoGallery(submitValue) {
   } catch (error) {
     console.log(error.message);
   }
-  
 }
